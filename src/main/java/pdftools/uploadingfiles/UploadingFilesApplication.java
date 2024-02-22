@@ -16,6 +16,8 @@ import pdftools.uploadingfiles.storage.StorageService;
 @EnableConfigurationProperties(StorageProperties.class)
 public class UploadingFilesApplication {
 
+	private static int TIME_TO_DELETE_FILE = 60000;
+
 	public static void main(String[] args) {
 		SpringApplication.run(UploadingFilesApplication.class, args);
 		Thread thread = new Thread();
@@ -23,7 +25,7 @@ public class UploadingFilesApplication {
 		while(true) {
 			try {
 				deleteOldFile.deleteOldFile();
-				thread.sleep(60000);
+				thread.sleep(TIME_TO_DELETE_FILE);
 			} catch (IOException | InterruptedException e) {
 				e.getStackTrace();
 			}

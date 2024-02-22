@@ -56,6 +56,11 @@ public class FileUploadController {
 		return "pdfToImg";
 	}
 
+	@GetMapping("/imgtopdf")
+	public String imgToPdfForm() {
+		return "imgToPdf";
+	}
+
 	@GetMapping("/files/{filename:.+}")
 	@ResponseBody
 	public ResponseEntity<Resource> getFiles(@PathVariable String filename) {
@@ -85,6 +90,29 @@ public class FileUploadController {
 			e.printStackTrace();
 		}
 		
+		return "redirect:/files/" + convertedFilename;
+	}
+
+	@PostMapping("/imgtopdf")
+	public String upoloadImageToPDFConversion(@RequestParam("file") MultipartFile file,
+											  RedirectAttributes redirectAttributes) {
+		if (file.isEmpty()) {
+			redirectAttributes.addFlashAttribute("message",
+					"Veuillez choisir un fichier");
+
+			return "redirect:/imgtopdf";
+		}
+
+		storageService.store(file);
+
+		PdfService convertToPdf = new PdfService();
+		String convertedFilename = "";
+		try {
+			convertedFilename = convertToPdf.ImageToPDF(file.getOriginalFilename());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		return "redirect:/files/" + convertedFilename;
 	}
 	

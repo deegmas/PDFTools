@@ -17,9 +17,13 @@ import javax.imageio.ImageIO;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import pdftools.uploadingfiles.storage.StorageProperties;
@@ -48,6 +52,26 @@ public class PdfService {
 	    String newFile = storageProperties.getLocation() + "/" + filename;
 	    ImageIO.write (bi, "JPEG", new File (newFile));
 	    return filename;
+	}
+
+	public String ImageToPDF(String file) throws IOException {
+
+		PDDocument document = new PDDocument();
+		File imageFile = new File(storageProperties.getLocation() + "/" + file);
+		BufferedImage image = ImageIO.read(imageFile);
+		float width = image.getWidth();
+		float height = image.getHeight();
+		PDPage page = new PDPage(new PDRectangle(width, height));
+		document.addPage(page);
+		PDPageContentStream contentStream = new PDPageContentStream(document, page);
+		PDImageXObject pdImage = PDImageXObject.createFromFile(storageProperties.getLocation() + "/" + file, document);
+		contentStream.drawImage(pdImage, 0, 0);
+		contentStream.close();
+		String filename = file.substring(0, file.lastIndexOf(".")) + ".pdf";
+		document.save(storageProperties.getLocation() + "/" + filename);
+		document.close();
+		System.out.println("Image converted to PDF successfully.");
+		return filename;
 	}
 	
 	/**
